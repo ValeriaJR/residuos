@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Requisitos previos
+Node.js 18+ (recomendado 18 LTS o 20 LTS).
 
-## Getting Started
+npm (viene con Node).
 
-First, run the development server:
+Git para clonar el repositorio.
 
-```bash
+Comprueba versiones: node -v y npm -v.
+
+Tecnologías y dependencias usadas
+Proyecto basado en Next.js (App Router) con React y Bootstrap. Además:
+
+Bootstrap (estilos básicos y modales).
+
+react-calendar (calendario funcional en Agendar y Reprogramar).
+
+recharts (gráficos en Perfil e Informes del administrador).
+
+localStorage para simular persistencia (reservas, perfil, asignaciones, etc.).
+
+Dependencias principales que deben estar en package.json:
+
+next
+
+react
+
+react-dom
+
+bootstrap
+
+react-calendar
+
+recharts
+
+Clonado e instalación
+Clonar el repositorio y entrar a la carpeta del proyecto:
+git clone <URL_DEL_REPO> → cd <carpeta_del_repo>
+
+Instalar dependencias:
+npm install
+
+Ejecución en desarrollo (localhost:3000)
+Levantar el servidor de desarrollo:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir en el navegador:
+http://localhost:3000
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Si ya hay otro proceso usando el puerto 3000, ciérralo o cambia el puerto al ejecutar (PORT=3001 npm run dev en macOS/Linux; en Windows usa set PORT=3001 && npm run dev).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Build y ejecución en producción (opcional)
+Construir: npm run build
 
-## Learn More
+Ejecutar: npm start
+La app levantará también en http://localhost:3000 salvo que definas otro puerto.
 
-To learn more about Next.js, take a look at the following resources:
+Estructura funcional (qué hay y dónde)
+Pantallas de usuario
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Agendar: calendario + lista de horarios; abre modal para detallar residuos. Guarda una reserva simulada en localStorage["ultima_reserva"].
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Perfil: datos editables (modal), recolecciones futuras/pasadas (lee de localStorage["reservas"] y mueve ultima_reserva a esa lista), gráfico por mes con recharts.
 
-## Deploy on Vercel
+Recolector
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Lista de recolecciones asignadas (simuladas), filtros por fecha y barrio, botón Verificar que abre modal para revisar items y añadir observaciones; al “Recolectar” pasa a histórico en localStorage["recolecciones_realizadas"].
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Administrador
+
+Asignar: tabla de solicitudes (mock), filtro por tipo de residuo, botón Asignar abre modal para elegir recolector; guarda en localStorage["admin_solicitudes"] y localStorage["asignaciones"].
+
+Informes: dos gráficos con recharts y filtros:
+
+Barras → filtra por localidad y muestra cantidad por tipo.
+
+Torta → filtra por residuo y muestra cantidad por localidad.
+
+Persistencia: todo es simulado con localStorage; no hay backend ni base de datos.
+
+Estilos y componentes clave
+Bootstrap CSS se importa globalmente (en app/layout.js).
+
+Bootstrap JS se carga dinámicamente en cliente dentro de cada página que use modales (import("bootstrap") en un useEffect) para evitar errores de SSR.
+
+Paleta:
+
+Verde marca: #66C261 (botones/acentos).
+
+Inputs en gris (usar el gris que definiste en --input-gray).
+
+La barra de navegación se coloca dentro del contenedor con fondo (auth-bg) y en admin se usa versión “sticky”:
+
+header con position-sticky top-0 y z-index alto.
+
+Contenido con margen/espaciado superior para que no quede debajo.
+
+.gitignore recomendado
+Asegúrate de tener un .gitignore que excluya artefactos y dependencias:
+
+node_modules/
+
+.next/ y out/
+
+*.log
+
+.env*
+
+archivos del SO (.DS_Store, Thumbs.db)
+
+Si alguna vez se subió node_modules, ejecuta: git rm -r --cached node_modules y vuelve a commitear.
+
+Problemas comunes y cómo resolver
+“document/localStorage is not defined”
+Ocurre si accedes a APIs del navegador durante SSR. Solución: usa useEffect y verifica typeof window !== "undefined" antes de usar localStorage. Carga Bootstrap JS solo en cliente con import("bootstrap").
+
+El modal no abre
+Asegúrate de:
+
+Haber cargado bootstrap en cliente (useEffect).
+
+Usar la instancia correcta: const m = bs.Modal.getInstance(el) || new bs.Modal(el); m.show();
+
+Que el id del modal en el HTML coincida con el que seleccionas.
+
+Resumen de comandos
+Instalar: npm install
+
+Dev server (localhost:3000): npm run dev
+
+Build prod: npm run build
+
+Start prod: npm start
